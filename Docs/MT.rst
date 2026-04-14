@@ -154,7 +154,7 @@ The off-resonance map units must match the input frequencies (e.g. either PPM or
 
 * ``-a, --asym``
 
-    Output asymmetry (:math`Z(+f) - Z(-f)`) values.
+    Output asymmetry (:math:`Z(+f) - Z(-f)`) values.
 
 * ``--ref, -r``
 
