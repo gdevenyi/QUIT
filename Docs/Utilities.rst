@@ -32,7 +32,7 @@ This tool applies simple affine transformations to the header data of an image, 
 
 .. code-block:: bash
 
-    qi affine input_image.nii.gz --scale=10.0 --rotX=90
+    qi affine input_image.nii.gz output_image.nii.gz --scale=10.0 --rotate=90,0,0
 
 If no output image is specified, the output will be written back to the input filename.
 
