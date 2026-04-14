@@ -534,19 +534,61 @@ Both ``PhaseInc`` and ``FA`` are measured in degrees. The length of ``PhaseInc``
 qi planet
 --------------
 
-Converts the SSFP Ellipse parameters into relaxation times.
+Converts the SSFP Ellipse parameters (from `qi ssfp_ellipse`_) into relaxation times using the PLANET method.
 
 **Example Command Line**
 
 .. code-block:: bash
 
-    qi planet ES_G.nii.gz ES_a.nii.gz ES_b.nii.gz
+    qi planet ES_G.nii.gz ES_a.nii.gz ES_b.nii.gz --B1=B1_map.nii.gz < input.json
+
+The three positional inputs are the ellipse parameter maps G, a, and b produced by `qi ssfp_ellipse`_.
+
+**Example JSON File**
+
+.. code-block:: json
+
+    {
+        "SSFP" : {
+            "TR" : 0.005,
+            "FA" : [20, 30, 40, 50, 60, 70],
+            "PhaseInc" : [180, 180, 180, 180, 180, 180]
+        }
+    }
+
+``TR`` is the repetition time in seconds. ``FA`` is an array of flip-angles in degrees. ``PhaseInc`` is an array of phase-increments in degrees (must have the same number of entries as ``FA``). The SSFP sequence parameters must match those used with `qi ssfp_ellipse`_.
 
 **Outputs**
 
+- ``PLANET_PD.nii.gz`` - Apparent Proton Density
 - ``PLANET_T1.nii.gz`` - Longitudinal relaxation time
 - ``PLANET_T2.nii.gz`` - Transverse relaxation time
-- ``PLANET_PD.nii.gz`` - Apparent Proton Density
+
+*Important Options*
+
+* ``--B1, -b``
+
+    Path to a B1 map (ratio). Used for flip-angle correction. Default B1 value is 1.0 if not provided.
+
+* ``--mask, -m``
+
+    Only process voxels within the given mask.
+
+* ``--out, -o``
+
+    Add a prefix to output filenames.
+
+* ``--threads, -T``
+
+    Use N threads (default is hardware limit or ``$QUIT_THREADS``).
+
+* ``--simulate``
+
+    Simulate the sequence instead of fitting. The argument is the noise level.
+
+* ``--json``
+
+    Read JSON input from the specified file instead of ``stdin``.
 
 **References**
 

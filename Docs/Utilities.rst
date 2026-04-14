@@ -55,7 +55,7 @@ If no output image is specified, the output will be written back to the input fi
     Set the image origin to be the Center of Gravity of the image.
 
 qi affine_angle
----------
+---------------
 
 Calculates the angle between the Z-axis and the Z-axis transformed by one or more affine transformations. This can be useful for determining how far from the standard orientation a subject's head is tilted.
 
