@@ -81,7 +81,7 @@ The input file must be complex-valued multi-echo GRE data. Does not read input f
 
 * ``Fieldmap.nii.gz`` - The estimated field map. Units are Hz by default, or PPM if ``--B0`` is specified.
 
-*Important Options*
+**Important Options**
 
 * ``--delta_te``
 
