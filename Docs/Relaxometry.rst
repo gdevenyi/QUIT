@@ -3,6 +3,8 @@ Relaxometry
 
 Relaxometry is the measurement of the longitudinal and transverse relaxation times T1 and T2. There are a multitude of different techniques for measuring both. The main focus of QUIT has been on the Driven-Equilibrium Single-Pulse Observation of T1 (DESPOT1) family of techniques, but the classic multi-echo T2 method and the more recent MP2RAGE T1 measurement method are also implemented. It is common for relaxometry methods to need a :doc:`B1` map.
 
+Most fitting tools share a set of common options: ``--mask, -m`` (only process voxels within a mask), ``--out, -o`` (add prefix to output filenames), ``--threads, -T`` (set number of threads), ``--json`` (read JSON from file instead of stdin), ``--simulate`` (simulate sequence instead of fitting, argument is noise level), ``--subregion, -s`` (process a sub-block of voxels), ``--resids, -r`` (write point residuals), and ``--covar`` (write covariance/correlation images).
+
 The following commands are available:
 
 * `qi despot1`_
@@ -16,7 +18,7 @@ The following commands are available:
 * `qi mpm_r2s`_
 * `qi ssfp_ellipse`_
 * `qi planet`_
-* `qi irtse` _
+* `qi irtse`_
 
 qi despot1
 ---------
@@ -57,6 +59,10 @@ This command implements the classic Driven Equilibrium Single-Pulse Observation 
 * ``--algo, -a``
 
     This specifies which precise algorithm to use. There are 3 choices, classic linear least-squares (l), weighted linear least-squares (w), and non-linear least-squares (n). If you only have 2 flip-angles then LLS is the only meaningful choice. The other 2 choices should produce better (less noisy, more accurate) T1 maps when you have more input flip-angles. WLLS is faster than NLLS for the same number of iterations. However, modern processors are sufficiently powerful that the difference is bearable. Hence NLLS is recommended for the highest possible quality.
+
+* ``--its, -i``
+
+    Maximum number of iterations for WLLS/NLLS algorithms (default 15).
 
 **References**
 
@@ -103,6 +109,12 @@ For the MPRAGE sequence, the TR is the spacing between readouts/echoes, not the 
 * ``HIFI_PD.nii.gz`` - The apparent Proton Density map. No units.
 * ``HIFI_B1.nii.gz`` - The relative flip-angle map.
 
+*Important Options*
+
+* ``--clamp, -c``
+
+    Clamp output T1 values to this value (default infinity, i.e. no clamping).
+
 **References**
 
 - `Original HIFI Paper <http://doi.wiley.com/10.1002/jmri.21130>`_
@@ -142,6 +154,10 @@ Both ``PhaseInc`` and ``FA`` are measured in degrees. If the ellipse option is s
 
 *Important Options*
 
+* ``--T1``
+
+    Path to the T1 map. **Required.**
+
 * ``--B1, -b``
 
     Specify an effective flip-angle or B1 map. This must be expressed as a fraction, e.g. a value of 1 in a voxel implies the nominal flip-angle was achieved.
@@ -150,9 +166,13 @@ Both ``PhaseInc`` and ``FA`` are measured in degrees. If the ellipse option is s
 
     This specifies which precise algorithm to use. There are 3 choices, classic linear least-squares (l), weighted linear least-squares (w), and non-linear least-squares (n). If you only have 2 flip-angles then LLS is the only meaningful choice. The other 2 choices should produce better (less noisy, more accurate) T1 maps when you have more input flip-angles. WLLS is faster than NLLS for the same number of iterations. However, modern processors are sufficiently powerful that the difference is bearable. Hence NLLS is recommended for the highest possible quality.
 
-* ``--ellipse, -e``
+* ``--gs, -g``
 
-    This specifies that the input data is the SSFP Ellipse Geometric Solution, i.e. that multiple phase-increment data has already been combined to produce band free images.
+    This specifies that the input data is the SSFP Geometric Solution / band-free ellipse data, i.e. that multiple phase-increment data has already been combined to produce band free images.
+
+* ``--its, -i``
+
+    Maximum number of iterations for WLLS/NLLS algorithms (default 15).
 
 **References**
 
@@ -192,9 +212,17 @@ Both ``PhaseInc`` and ``FA`` are measured in degrees. The length of ``PhaseInc``
 
 *Important Options*
 
+* ``--T1``
+
+    Path to the T1 map. **Required.**
+
 * ``--B1, -b``
 
     Specify an effective flip-angle or B1 map. This must be expressed as a fraction, e.g. a value of 1 in a voxel implies the nominal flip-angle was achieved.
+
+* ``--its, -i``
+
+    Maximum number of iterations (default 75).
 
 * ``--asym, -A``
 
@@ -242,6 +270,16 @@ Note that the pulse-length for SSFP is required in order to apply to finite-puls
 * ``JSR_T1.nii.gz`` - The T1 map. Units are the same as those used for TR in the input.
 * ``JSR_T2.nii.gz`` - The T2 map. Units are the same as those used for TR in the input.
 * ``JSR_f0.nii.gz`` - The off-resonance map.
+
+*Important Options*
+
+* ``--B1, -b``
+
+    Path to a B1 map (ratio) for flip-angle correction.
+
+* ``--npsi, -p``
+
+    Number of starts for psi/off-resonance fitting (default 2).
 
 **References**
 
@@ -306,24 +344,36 @@ The intra/extra-cellular water fraction is not output, as it is not a free param
 
 *Important Options*
 
-* ``--algo, -a``
+* ``--model, -M``
 
-    * S - Stochastic Region Contraction
-    * G - Gaussian Region Contraction
-    
-    Gaussian is recommended.
+    Select the model to fit (default 3).
 
-* ``--tesla, -t``
-
-    Specify the field-strength so sensible fitting ranges can be used. Currently only ranges for (3) and (7)T are defined. If you wish to specify your own ranges, set this option as (u) and then the ranges will be read from your input file.
-
-* ``--model, -m``
-    * 1 - 1 component model (no fractions, just a single T1/T2)
     * 2 - 2 component model. Myelin and intra/extra-cellular water
-    * 2nex - 2 component model without exchange
     * 3 - 3 component model. Myelin water, IE water & CSF
-    * 3nex - 3 component model without exchange
-    * 3f0 - 3 component model, allow an additional off-resonance offset between myelin and IE water pools
+
+* ``--SRC``
+
+    Use a flat prior (Stochastic Region Contraction) instead of the default Gaussian prior (Gaussian Region Contraction). Gaussian is recommended.
+
+* ``--scale, -S``
+
+    Normalize signals to their mean before fitting (a good idea).
+
+* ``--f0, -f``
+
+    Provide an off-resonance (f0) map in Hertz.
+
+* ``--B1, -b``
+
+    Provide a B1 map (ratio) for flip-angle correction.
+
+* ``--its, -i``
+
+    Maximum number of iterations (default 4).
+
+* ``--bounds``
+
+    Specify fitting bounds in the JSON input file.
 
 **References**
 
@@ -484,6 +534,12 @@ For regularly spaced echoes:
 * ``MPM_S0_T1w.nii.gz`` - The PD-weighted signal at ``TE=0``.
 * ``MPM_S0_MTw.nii.gz`` - The PD-weighted signal at ``TE=0``.
 
+*Important Options*
+
+* ``--rician``
+
+    Mean squared noise level for Rician correction (default 0, i.e. no correction).
+
 **References**
 
 - `Weiskopf et al <http://journal.frontiersin.org/article/10.3389/fnins.2014.00278/abstract>`_
@@ -527,6 +583,12 @@ Both ``PhaseInc`` and ``FA`` are measured in degrees. The length of ``PhaseInc``
 - ``ES_theta_0`` - The accrued phase due to off-resonance, divide by :math:`2\pi TE` (or :math:`\pi TR`) to find the off-resonance frequency.
 - ``ES_phi_rf`` - The effective phase of the RF pulse.
 
+*Important Options*
+
+* ``--algo, -a``
+
+    Choose algorithm: (h)yper or (d)irect. Default is d (direct).
+
 **References**
 
 - `PLANET <http://dx.doi.org/10.1002/mrm.26717>`_
@@ -534,19 +596,61 @@ Both ``PhaseInc`` and ``FA`` are measured in degrees. The length of ``PhaseInc``
 qi planet
 --------------
 
-Converts the SSFP Ellipse parameters into relaxation times.
+Converts the SSFP Ellipse parameters (from `qi ssfp_ellipse`_) into relaxation times using the PLANET method.
 
 **Example Command Line**
 
 .. code-block:: bash
 
-    qi planet ES_G.nii.gz ES_a.nii.gz ES_b.nii.gz
+    qi planet ES_G.nii.gz ES_a.nii.gz ES_b.nii.gz --B1=B1_map.nii.gz < input.json
+
+The three positional inputs are the ellipse parameter maps G, a, and b produced by `qi ssfp_ellipse`_.
+
+**Example JSON File**
+
+.. code-block:: json
+
+    {
+        "SSFP" : {
+            "TR" : 0.005,
+            "FA" : [20, 30, 40, 50, 60, 70],
+            "PhaseInc" : [180, 180, 180, 180, 180, 180]
+        }
+    }
+
+``TR`` is the repetition time in seconds. ``FA`` is an array of flip-angles in degrees. ``PhaseInc`` is an array of phase-increments in degrees (must have the same number of entries as ``FA``). The SSFP sequence parameters must match those used with `qi ssfp_ellipse`_.
 
 **Outputs**
 
+- ``PLANET_PD.nii.gz`` - Apparent Proton Density
 - ``PLANET_T1.nii.gz`` - Longitudinal relaxation time
 - ``PLANET_T2.nii.gz`` - Transverse relaxation time
-- ``PLANET_PD.nii.gz`` - Apparent Proton Density
+
+*Important Options*
+
+* ``--B1, -b``
+
+    Path to a B1 map (ratio). Used for flip-angle correction. Default B1 value is 1.0 if not provided.
+
+* ``--mask, -m``
+
+    Only process voxels within the given mask.
+
+* ``--out, -o``
+
+    Add a prefix to output filenames.
+
+* ``--threads, -T``
+
+    Use N threads (default is hardware limit or ``$QUIT_THREADS``).
+
+* ``--simulate``
+
+    Simulate the sequence instead of fitting. The argument is the noise level.
+
+* ``--json``
+
+    Read JSON input from the specified file instead of ``stdin``.
 
 **References**
 
