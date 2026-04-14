@@ -18,11 +18,17 @@ An implementation of the quality-guided path-based unwrapping of Abdul-Rahman et
 
     qi unwrap_path phase_file.nii.gz
 
-The phase file must be specified in radians (i.e. between :math:`-\pi` and :math:`+\pi`). Does not read input from ``stdin``, and currently there are no arguments to control the algorithms behaviour.
+The phase file must be specified in radians (i.e. between :math:`-\pi` and :math:`+\pi`). Does not read input from ``stdin``.
 
 **Outputs**
 
 * ``input_unwrapped.nii.gz`` - The unwrapped phase value, in radians.
+
+*Important Options*
+
+* ``--mask, -m``
+
+    Only process voxels within the given mask.
 
 **References**
 

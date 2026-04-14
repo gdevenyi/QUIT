@@ -60,11 +60,23 @@ The units for all these values must be consistent, seconds are preferred. If sin
 
 * ``--alpha, -a``
 
-    The labelling efficiency of the sequence.
+    The labelling efficiency of the sequence. Note: ``-a`` is also used for ``--average`` (see below); use ``--alpha`` to avoid ambiguity.
 
 * ``--lambda, -l``
 
     The blood-brain partition co-efficient, default 0.9 mL/g.
+
+* ``--average, -a``
+
+    Average the output time-series. Note: shares the ``-a`` short flag with ``--alpha``; use the long form to avoid ambiguity.
+
+* ``--slicetime, -s``
+
+    Apply slice-time correction. The number of post-label delays in the JSON input must match the number of slices.
+
+* ``--dummies, -d``
+
+    Discard this many dummy label/control pairs from the beginning of the input (default 0).
 
 **References**
 
