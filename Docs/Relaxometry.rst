@@ -16,7 +16,7 @@ The following commands are available:
 * `qi mpm_r2s`_
 * `qi ssfp_ellipse`_
 * `qi planet`_
-* `qi irtse` _
+* `qi irtse`_
 
 qi despot1
 ---------

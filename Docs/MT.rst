@@ -9,6 +9,7 @@ MR voxels often contain complex microstructure with multiple different component
 * `qi mtsat`_
 * `qi ssfp_emt`_
 * `qi qmt`_
+* `qi zspec_b1`_
 * `qi zspec_interp`_
 
 qi lineshape
@@ -34,7 +35,7 @@ The output will be written to the file specified on the command-line (in this ca
 
     Specify the nominal T2 of the lineshape. During fitting in `qi qmt`_ scaling will be used to find the actual value. Should be specified in seconds.
 
-* ``--frq_count``, ``--frq_start``, ``--frq_space``
+* ``--frq_count, -n``, ``--frq_start, -s``, ``--frq_space, -p``
 
     These Control the position and number of samples to take on the lineshape. ``frq_start`` and ``frq_space`` should be in Hertz.
 
@@ -275,14 +276,30 @@ Implementation of Gunther Helm's MT-Sat method. Calculates R1, apparent PD and t
 **Outputs**
 
 - ``MTSat_R1.nii.gz`` - Apparent longitudinal relaxation rate
-- ``MTSat_S0.nii.gz`` - Apparent proton density / equilibrium magnetization
+- ``MTSat_PD.nii.gz`` - Apparent proton density / equilibrium magnetization
 - ``MTSat_delta.nii.gz`` - MT-Sat parameter, see above.
 
 *Important Options*
 
+* ``--B1, -b``
+
+    Path to a B1 map for flip-angle correction.
+
 * ``--smallangle, -s``
 
     If this flag is specified, use the small flip angle approximation from the original Helms et al paper. Else, do not use the approximation, as suggested in Edwards et al (default).
+
+* ``--C``
+
+    Correction factor for delta (default 0.4).
+
+* ``--delta-max, -d``
+
+    Values of delta (MTsat) above this are clamped, in percent (default 10%).
+
+* ``--r1-max, -r``
+
+    Values of R1 above this are clamped, in 1/s (default 10 1/s).
 
 **References**
 
@@ -313,3 +330,36 @@ Due to the short TR commonly used with SSFP, at high flip-angles the sequence be
 
 - `Bieri et al <http://doi.wiley.com/10.1002/mrm.21056>`_
 - `Gloor et al <http://doi.wiley.com/10.1002/mrm.21705>`_
+
+qi zspec_b1
+-----------
+
+Performs B1 correction on Z-spectra. Takes a B1 map and multiple Z-spectrum files acquired at different B1 power levels, and uses linear regression to correct the Z-spectra for B1 inhomogeneity.
+
+**Example Command Line**
+
+.. code-block:: bash
+
+    qi zspec_b1 b1_map.nii.gz zspec_power1.nii.gz zspec_power2.nii.gz < input.json
+
+The B1 map is specified as the first positional argument, followed by one or more Z-spectrum files (one per B1 power level).
+
+**Example JSON File**
+
+.. code-block:: json
+
+    {
+        "b1_rms": [1.0, 2.0, 3.0]
+    }
+
+``b1_rms`` specifies the RMS B1 power for each input Z-spectrum file. The number of entries must match the number of input files.
+
+**Outputs**
+
+For each input file, an output file with the suffix ``_b1`` appended to the input filename.
+
+*Important Options*
+
+* ``--out, -o``
+
+    Change the output filename suffix (default ``_b1``).

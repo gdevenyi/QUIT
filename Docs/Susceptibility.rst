@@ -5,6 +5,7 @@ Susceptibility is a fundamental magnetic property of a material, and determines 
 
 * `qi unwrap_path`_
 * `qi unwrap_laplace`_
+* `qi fieldmap`_
 
 qi unwrap_path
 --------------
@@ -43,7 +44,7 @@ The phase file must be specified in radians (i.e. between -pi and +pi). Does not
 
 **Outputs**
 
-* ``input_unwrapped.nii.gz`` The unwrapped phase, in radians.
+* ``input_unwrap.nii.gz`` The unwrapped phase, in radians.
 
 **Important Options**
 
@@ -55,6 +56,37 @@ The phase file must be specified in radians (i.e. between -pi and +pi). Does not
 
     Radius to erode the input mask by (default 1 mm).
 
+* ``--debug, -d``
+
+    Output intermediate debugging images from each step of the unwrapping process.
+
 **References**
 
 - `Bakker et al <http://linkinghub.elsevier.com/retrieve/pii/S0730725X12000124>`_
+
+qi fieldmap
+-----------
+
+Calculates a B0 field map from multi-echo complex-valued GRE data. The phase difference between consecutive echoes is used to estimate the off-resonance frequency.
+
+**Example Command Line**
+
+.. code-block:: bash
+
+    qi fieldmap multi_echo_gre.nii.gz --delta_te=2.46
+
+The input file must be complex-valued multi-echo GRE data. Does not read input from ``stdin``.
+
+**Outputs**
+
+* ``Fieldmap.nii.gz`` - The estimated field map. Units are Hz by default, or PPM if ``--B0`` is specified.
+
+*Important Options*
+
+* ``--delta_te``
+
+    The echo time difference in milliseconds. Required.
+
+* ``--B0``
+
+    Field-strength in Tesla. If specified, the output will be in PPM instead of Hz.

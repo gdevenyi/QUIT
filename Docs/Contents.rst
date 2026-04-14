@@ -10,4 +10,5 @@ Categories
    Susceptibility
    Stats
    Utilities
+   PARMESAN
    Developer

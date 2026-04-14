@@ -7,6 +7,7 @@ The following commands are available:
 
 * `qi asl`_
 * `qi ase_oef`_
+* `qi zshim`_
 
 qi asl
 ------
@@ -80,7 +81,7 @@ Estimates the Oxygen Extraction Fraction (OEF) from Asymmetric Spin-Echo (ASE) d
 
 .. code-block:: bash
 
-    qi ase_oef ase_file.nii.gz --B0=9.4 --fmap=fieldmap.nii.gz <input.json
+    qi ase_oef ase_file.nii.gz --B0=9.4 <input.json
 
 
 **Example JSON File**
@@ -99,6 +100,7 @@ Estimates the Oxygen Extraction Fraction (OEF) from Asymmetric Spin-Echo (ASE) d
 Or:
 
 .. code-block:: json
+
     {
         "MultiEcho" : {
             "TR" : 2.0,
@@ -110,25 +112,65 @@ Or:
 
 **Outputs**
 
-* ``input_R2prime.nii.gz`` The R2' map. Units are the same as those used for ``TR``, ``TE1`` and ``ESP``.
-* ``input_DBV.nii.gz`` The Deoxygenated Blood Volume, in percent.
-* ``input_OEF.nii.gz`` The Oxygen Extraction Fraction, in percent.
-* ``input_dHb.nii.gz`` The Deoxyhaemoglobin concentration.
+* ``ASE_S0.nii.gz`` The scaling factor.
+* ``ASE_dT.nii.gz`` The time offset.
+* ``ASE_R2p.nii.gz`` The R2' map. Units are the same as those used for ``TR``, ``TE1`` and ``ESP``.
+* ``ASE_DBV.nii.gz`` The Deoxygenated Blood Volume.
+* ``ASE_Tc.nii.gz`` The critical time Tc (derived).
+* ``ASE_OEF.nii.gz`` The Oxygen Extraction Fraction (derived).
+* ``ASE_dHb.nii.gz`` The Deoxyhaemoglobin concentration (derived).
 
 *Important Options*
 
-* ``--B0, -b``
+* ``--B0, -B``
 
-    Field-strength the data was acquired at. This is used to calculate Tc and appears elsewhere in several equations.
+    Field-strength in Tesla, default 3. This is used to calculate Tc and appears elsewhere in several equations.
 
-* ``--fmap, -f``
+* ``--Hct, -h``
 
-    Provide a field-map (in Hertz). This will be used to provide first-order correction of Macroscopic Field Gradients (MFGs). If this option is specified, the derivative of the field-map in all 3 directions will also be saved.
+    Hematocrit value, default 0.34.
 
-* ``--slice,-s``
+* ``--DBV, -d``
 
-    If the data was acquired with a slice-gap, use this option to specify the actual slice-thickness for the MFG calculation.
+    Fix the Deoxygenated Blood Volume to the specified value and only fit R2'. If set to 0 (default), DBV is fitted as a free parameter.
 
 **References**
 
 - `Blockley <https://doi.org/10.1016/j.neuroimage.2016.11.057>`_
+
+qi zshim
+--------
+
+Performs Z-shimming on multi-volume data. Z-shimming acquires multiple images with different slice-select gradient moments to compensate for through-slice dephasing caused by susceptibility-induced field gradients. This tool combines the Z-shimmed volumes using a sum-of-squares approach, optionally with noise correction.
+
+**Example Command Line**
+
+.. code-block:: bash
+
+    qi zshim zshim_data.nii.gz --zshims=8
+
+**Outputs**
+
+* ``input_zshim.nii.gz`` - The combined Z-shimmed image.
+
+*Important Options*
+
+* ``--zshims, -z``
+
+    Number of Z-Shims (default 8).
+
+* ``--yshims, -y``
+
+    Number of Y-Shims (default 1).
+
+* ``--zdrop``
+
+    Number of Z-Shims to drop from each end (default 0).
+
+* ``--ydrop``
+
+    Number of Y-Shims to drop from each end (default 0).
+
+* ``--noiseregion, -n``
+
+    Subtract noise measured in the specified region (format: I,J,K,SI,SJ,SK).

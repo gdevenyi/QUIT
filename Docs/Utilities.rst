@@ -5,13 +5,16 @@ QUIT contains a number of utilities. Note that these are actually compiled in tw
 
 
 * `qi affine`_
+* `qi affine_angle`_
 * `qi coil_combine`_
 * `qi complex`_
 * `qi diff`_
+* `qi gradient`_
 * `qi hdr`_
 * `qi kfilter`_
 * `qi mask`_
 * `qi newimage`_
+* `qi noise_est`_
 * `qi pca`_
 * `qi polyfit/qi polyimg`_
 * `qi rfprofile`_
@@ -50,6 +53,23 @@ If no output image is specified, the output will be written back to the input fi
 - ``--center, -c``
 
     Set the image origin to be the Center of Gravity of the image.
+
+qi affine_angle
+---------
+
+Calculates the angle between the Z-axis and the Z-axis transformed by one or more affine transformations. This can be useful for determining how far from the standard orientation a subject's head is tilted.
+
+**Example Command Line**
+
+.. code-block:: bash
+
+    qi affine_angle transform1.tfm transform2.tfm
+
+Multiple transform files can be specified and will be composed together. Prefixing a transform path with ``^`` will use its inverse.
+
+**Outputs**
+
+The angle in degrees is printed to ``stdout``.
 
 qi complex
 ---------
@@ -221,6 +241,31 @@ In this case an intensity value of 10 will be used as the threshold, RATs will b
 **References**
 
 - `RATs algorithm <http://dx.doi.org/10.1016/j.jneumeth.2013.09.021>`_
+
+qi noise_est
+------------
+
+Estimates noise statistics from a 4D image, either within a specified region or a mask. Prints the noise standard deviation (or mean of squared values) to ``stdout``.
+
+**Example Command Line**
+
+.. code-block:: bash
+
+    qi noise_est data.nii.gz --region=0,0,0,8,8,8
+
+**Important Options**
+
+- ``--region, -r``
+
+    Measure noise in the specified region (format: I,J,K,SI,SJ,SK). Either this or ``--mask`` must be specified.
+
+- ``--mask, -m``
+
+    Measure noise within the specified mask image. Either this or ``--region`` must be specified.
+
+- ``--meansqr``
+
+    Return the mean of the squared values instead of the standard deviation. Useful for Rician noise correction.
 
 qi pca
 ------------
@@ -402,6 +447,23 @@ The command returns the dimensionless noise factor on `stdout`, which is read by
 - ``--abs, -a``
 
     Use absolute difference instead of fractional difference (i.e. do not divide by the baseline image). Useful when images contain genuine zeros (e.g. off resonance maps).
+
+qi gradient
+-----------
+
+Calculates the image gradient (spatial derivative) in all three directions.
+
+**Example Command Line**
+
+.. code-block:: bash
+
+    qi gradient input_image.nii.gz
+
+**Outputs**
+
+* ``input_gradx.nii.gz`` - The gradient in the X direction.
+* ``input_grady.nii.gz`` - The gradient in the Y direction.
+* ``input_gradz.nii.gz`` - The gradient in the Z direction.
 
 qi newimage
 ----------
